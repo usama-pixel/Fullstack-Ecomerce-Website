@@ -1,9 +1,10 @@
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
-const expressHbs = require('express-handlebars')
+// const expressHbs = require('express-handlebars')
 
 const app = express();
+/*
 // by default 'layoutsDir' is set to 'views/layout', so setting it to it again is redundant.
 app.engine(
     'hbs',
@@ -15,7 +16,8 @@ app.engine(
     })
 ) // whatever name you set here you will have to give that as extension to view folder files
 // like if name is han, filename would be home.han.
-app.set('view engine', 'hbs')
+*/
+// app.set('view engine', 'hbs')
 /**app.set('view engine', 'pug') // app set allows us to set any values(like this app.set('title','Naruto') )
 //globally on our express application express doesnt understand these values and ignores
 // them but we can read these values from app using app.get(), so we can share data across app this way as well.
@@ -23,6 +25,7 @@ app.set('view engine', 'hbs')
 // view engine tells express that for any dynamic template we are trying to render,
 // use the engine we are registering
 */
+app.set('view engine', 'ejs')
 app.set('views', 'views') // using this line will let express find our views which will be rendered using templating engine
 // by default it is set to views folder in the root directory, so there is no need for this line but if the views are in other
 // folder, you can use this line like app.set('views', 'templates')
@@ -42,7 +45,7 @@ app.use((req, res, next) => { // this middleware will run if no other above midd
     /** res.status(404).sendFile(path.join(__dirname, 'views', '404.html')) // you can chain methods like this, but send()
     * // has to be the last one
     */
-    res.render('404.hbs', { pageTitle: 'Error 404' })
+    res.render('404', { pageTitle: 'Error 404' })
 })
 
 
