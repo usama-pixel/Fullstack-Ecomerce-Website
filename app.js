@@ -1,12 +1,21 @@
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
-const expressHBS = require('express-handlebars')
+const expressHbs = require('express-handlebars')
 
 const app = express();
-
-app.engine('hbs', expressHBS()) // whatever name you set here you will have to give that as extension to view folder files
+// by default 'layoutsDir' is set to 'views/layout', so setting it to it again is redundant.
+app.engine(
+    'hbs',
+    expressHbs({
+        layoutsDir: 'views/layouts',
+        defaultLayout: 'main-layout',
+        extname: 'hbs', // this key tells the node js handlebars to look for .hbs extension for the layout-
+        // and this only applies to handlebars layouts, and not anyother handlebars files
+    })
+) // whatever name you set here you will have to give that as extension to view folder files
 // like if name is han, filename would be home.han.
+app.set('view engine', 'hbs')
 /**app.set('view engine', 'pug') // app set allows us to set any values(like this app.set('title','Naruto') )
 //globally on our express application express doesnt understand these values and ignores
 // them but we can read these values from app using app.get(), so we can share data across app this way as well.
@@ -24,7 +33,7 @@ const shopRoutes = require('./routes/shop')
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/admin', adminData.routes)
-app.use('/admin', shopRoutes)
+app.use(shopRoutes)
 
 app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
 // app.use(express.static(path.join(__dirname, 'folder')))

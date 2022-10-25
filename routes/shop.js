@@ -6,7 +6,7 @@ const adminData = require('./admin')
 
 const router = express.Router()
 
-router.get('/shop', (req, res, next) => { // we can also use app.use, app.use doesnt do exact matching of routes
+router.get('/', (req, res, next) => { // we can also use app.use, app.use doesnt do exact matching of routes
   // like if we sent a get request for '/product', and there is also a route like '/', 
   // and it is defined first in the code, then '/' route will be executed.
   // but 'get()' does exact matching. a get request for '/products' WILL hit '/products' route, not the '/' route
@@ -25,11 +25,19 @@ router.get('/shop', (req, res, next) => { // we can also use app.use, app.use do
    // instead of '../'
   */
   const products = adminData.products
-  console.log(products.length > 0)
-  res.render('shop.hbs', { prods: products, pageTitle: 'Shop', path: '/', hasProducts: products.length > 0 }) // products will be available in shop.pug file through its key 'prods',
+  res.render('shop', {
+    prods: products,
+    pageTitle: 'Shop',
+    path: '/',
+    hasProducts: products.length > 0,
+    activeShop: true,
+    productCSS: true,
+    // the handlebars will automatically use the default layout, you can disable it using a special key here-
+    // layout: false,-
+    // like the above line.
+  }) // products will be available in shop.pug file through its key 'prods',
   // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
   // adminData.products.forEach(itm => console.log(itm.title))
-
 })
 
 
