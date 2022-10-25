@@ -30,12 +30,12 @@ app.set('views', 'views') // using this line will let express find our views whi
 // by default it is set to views folder in the root directory, so there is no need for this line but if the views are in other
 // folder, you can use this line like app.set('views', 'templates')
 
-const adminData = require('./routes/admin')
+const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/admin', adminData.routes)
+app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 
 app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
