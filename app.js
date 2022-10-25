@@ -41,12 +41,8 @@ app.use(shopRoutes)
 app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
 // app.use(express.static(path.join(__dirname, 'folder')))
 
-app.use((req, res, next) => { // this middleware will run if no other above middlewares are hit
-    /** res.status(404).sendFile(path.join(__dirname, 'views', '404.html')) // you can chain methods like this, but send()
-    * // has to be the last one
-    */
-    res.render('404', { pageTitle: 'Error 404' })
-})
+const errorController = require('./controllers/error')
+app.use(errorController.get404)
 
 
 app.listen(3001, () => {
