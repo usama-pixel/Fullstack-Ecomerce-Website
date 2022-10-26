@@ -1,4 +1,4 @@
-const products = [];
+const Product = require('../models/product')
 
 exports.getAddProduct = (req, res, next) => {
   // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
@@ -15,9 +15,10 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
-  console.log(req.body)
-  products.push({ title: req.body.title })
+  const product = new Product(req.body.title)
+  product.save()
   res.redirect('/')
+  // res.send('yo')
 }
 
 exports.getProducts = (req, res, next) => {
@@ -35,17 +36,19 @@ exports.getProducts = (req, res, next) => {
     res.sendFile(path.join(rootDir, 'views', 'shop.html')); // '../' means go up one level, we can also use '..'
    // instead of '../'
   */
-  res.render('shop', {
-    prods: products,
-    pageTitle: 'Shop',
-    path: '/',
-    hasProducts: products.length > 0,
-    activeShop: true,
-    productCSS: true,
-    // the handlebars will automatically use the default layout, you can disable it using a special key here-
-    // layout: false,-
-    // like the above line.
-  }) // products will be available in shop.pug file through its key 'prods',
-  // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
-  // adminData.products.forEach(itm => console.log(itm.title))
+  Product.fetchAll((products) => {
+    res.render('shop', {
+      prods: products,
+      pageTitle: 'Shop',
+      path: '/',
+      // hasProducts: products.length > 0,
+      activeShop: true,
+      productCSS: true,
+      // the handlebars will automatically use the default layout, you can disable it using a special key here-
+      // layout: false,-
+      // like the above line.
+    }) // products will be available in shop.pug file through its key 'prods',
+    // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
+    // adminData.products.forEach(itm => console.log(itm.title))
+  })
 }
