@@ -3,7 +3,7 @@ const Product = require('../models/product')
 exports.getAddProduct = (req, res, next) => {
   // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
   res.render(
-    'add-product',
+    'admin/add-product',
     {
       pageTitle: 'Add Product',
       path: 'admin/add-product',
@@ -37,7 +37,7 @@ exports.getProducts = (req, res, next) => {
    // instead of '../'
   */
   Product.fetchAll((products) => {
-    res.render('shop', {
+    res.render('shop/product-list', {
       prods: products,
       pageTitle: 'Shop',
       path: '/',
