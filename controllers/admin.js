@@ -5,7 +5,7 @@ exports.getAddProduct = (req, res, next) => {
     'admin/add-product',
     {
       pageTitle: 'Add Product',
-      path: 'admin/add-product',
+      path: '/admin/add-product',
       formsCSS: true,
       productCSS: true,
       activeAddProduct: true,
@@ -14,8 +14,9 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
-  const { title, imageUrl, price, description } = req.body
-  const product = new Product(title, imageUrl, price, description)
+  // const { title, imageUrl, price, description } = req.body /**this line is used in the video */
+  // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
+  const product = new Product(req.body)
   product.save()
   res.redirect('/')
 }

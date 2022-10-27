@@ -1,4 +1,5 @@
 const Product = require('../models/product')
+
 exports.getProducts = (req, res, next) => {
   /** res.sendFile('/views/shop.html') */ // this line does not work because we need absolute path, and that can be done
   // using path module
@@ -28,6 +29,19 @@ exports.getProducts = (req, res, next) => {
   })
 }
 
+exports.getProduct = (req, res, next) => {
+  const prodId = req.params.productId // we used productId here because we used it in our route like
+  // /product/:productId
+  Product.findById(prodId, product => {
+    console.log(product)
+    res.render('shop/product-detail', {
+      product,
+      pageTitle: product.title,
+      path: '/products'
+    })
+  })
+}
+
 exports.getIndex = (req, res, next) => {
   Product.fetchAll((products) => {
     res.render('shop/index', {
@@ -45,9 +59,25 @@ exports.getCart = (req, res, next) => {
   })
 }
 
+exports.postCart = (req, res, next) => {
+  const prodId = req.body.productId
+  console.log(req.body)
+  Product.findById(prodId, product => {
+    console.log(prodId)
+    res.send('data')
+  })
+}
+
 exports.getCheckout = (req, res, next) => {
   res.render('shop/checkout', {
     path: '/checkout',
     pageTitle: 'Checkout'
+  })
+}
+
+exports.getOrders = (req, res, next) => {
+  res.render('shop/orders', {
+    path: '/orders',
+    pageTitle: 'Your Orders'
   })
 }
