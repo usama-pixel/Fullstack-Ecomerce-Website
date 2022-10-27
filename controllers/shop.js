@@ -1,5 +1,5 @@
 const Product = require('../models/product')
-
+const Cart = require('../models/cart')
 exports.getProducts = (req, res, next) => {
   /** res.sendFile('/views/shop.html') */ // this line does not work because we need absolute path, and that can be done
   // using path module
@@ -61,9 +61,8 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId
-  console.log(req.body)
   Product.findById(prodId, product => {
-    console.log(prodId)
+    Cart.addProduct(prodId, product.price)
     res.send('data')
   })
 }
