@@ -1,26 +1,4 @@
 const Product = require('../models/product')
-
-exports.getAddProduct = (req, res, next) => {
-  // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
-  res.render(
-    'admin/add-product',
-    {
-      pageTitle: 'Add Product',
-      path: 'admin/add-product',
-      formsCSS: true,
-      productCSS: true,
-      activeAddProduct: true,
-    }
-  )
-}
-
-exports.postAddProduct = (req, res, next) => {
-  const product = new Product(req.body.title)
-  product.save()
-  res.redirect('/')
-  // res.send('yo')
-}
-
 exports.getProducts = (req, res, next) => {
   /** res.sendFile('/views/shop.html') */ // this line does not work because we need absolute path, and that can be done
   // using path module
@@ -39,16 +17,37 @@ exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
     res.render('shop/product-list', {
       prods: products,
-      pageTitle: 'Shop',
-      path: '/',
-      // hasProducts: products.length > 0,
-      activeShop: true,
-      productCSS: true,
+      pageTitle: 'All Products',
+      path: '/products',
       // the handlebars will automatically use the default layout, you can disable it using a special key here-
       // layout: false,-
       // like the above line.
     }) // products will be available in shop.pug file through its key 'prods',
     // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
     // adminData.products.forEach(itm => console.log(itm.title))
+  })
+}
+
+exports.getIndex = (req, res, next) => {
+  Product.fetchAll((products) => {
+    res.render('shop/index', {
+      prods: products,
+      pageTitle: 'Shop',
+      path: '/',
+    })
+  })
+}
+
+exports.getCart = (req, res, next) => {
+  res.render('shop/cart', {
+    path: '/cart',
+    pageTitle: 'Your Cart'
+  })
+}
+
+exports.getCheckout = (req, res, next) => {
+  res.render('shop/checkout', {
+    path: '/checkout',
+    pageTitle: 'Checkout'
   })
 }
