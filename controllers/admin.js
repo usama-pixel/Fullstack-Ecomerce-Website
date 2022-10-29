@@ -2,12 +2,11 @@ const Product = require('../models/product')
 
 exports.getAddProduct = (req, res, next) => {
   // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
-  res.render(
-    'admin/edit-product', {
+  res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-  }
-  )
+    editing: false
+  })
 }
 
 exports.postAddProduct = (req, res, next) => {
@@ -23,11 +22,41 @@ exports.getEditProduct = (req, res, next) => {
   // 'https://www.usama.com/products/1?edit=true' here everything after ? are the query parameters
   if (!editMode)
     return res.redirect('/')
-  res.render('admin/edit-product', {
-    pageTitle: 'Edit Product',
-    path: '/admin/edit-product',
-    editing: editMode
+
+  Product.findById(req.params.productId, product => {
+    if (!product)
+      return res.redirect('/')
+    res.render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: editMode,
+      product
+    })
   })
+}
+
+exports.postEditProduct = (req, res, next) => {
+  // const prodId = req.body.productId
+  // const updatedTitle = req.body.title
+  // const updatedImage = req.body.imageUrl
+  // const updatedPrice = req.body.price
+  // const updatedDesc = req.body.description
+  const obj = {
+    id: req.body.productId,
+    title: req.body.title,
+    imageUrl: req.body.imageUrl,
+    price: req.body.price,
+    description: req.body.description
+  }
+  const updatedProduct = new Product(obj)
+  updatedProduct.save()
+  res.redirect('/admin/products')
+}
+
+exports.deleteProduct = (req, res, next) => {
+  console.log(req.body.productId)
+  Product.delete(req.body.productId)
+  res.redirect('/admin/products')
 }
 
 exports.getProducts = (req, res, next) => {
