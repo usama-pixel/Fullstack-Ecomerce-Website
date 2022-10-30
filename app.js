@@ -46,12 +46,12 @@ app.use(express.static(path.join(__dirname, 'public'))) // you can register mult
 
 app.use(errorController.get404)
 
+// sync() method looks at all the models defined, which we created using sequelize.define
+// in our product.js file in the model folder, and creates tables for them
 sequelize.sync()
     .then(result => {
-        console.log(result)
         app.listen(3001, () => {
             console.log('listening to port 3001')
         })
     })
     .catch(err => console.log(err))
-
