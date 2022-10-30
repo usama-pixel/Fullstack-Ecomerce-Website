@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 // const expressHbs = require('express-handlebars')
 const errorController = require('./controllers/error')
 
-const db = require('./util/database')
+const sequelize = require('./util/database')
 
 const app = express();
 /*
@@ -46,7 +46,12 @@ app.use(express.static(path.join(__dirname, 'public'))) // you can register mult
 
 app.use(errorController.get404)
 
+sequelize.sync()
+    .then(result => {
+        console.log(result)
+        app.listen(3001, () => {
+            console.log('listening to port 3001')
+        })
+    })
+    .catch(err => console.log(err))
 
-app.listen(3001, () => {
-    console.log('listening to port 3001')
-})
