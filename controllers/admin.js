@@ -14,7 +14,9 @@ exports.postAddProduct = (req, res, next) => {
   // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
   const product = new Product(req.body)
   product.save()
-  res.redirect('/')
+    .then(() => {
+      res.redirect('/')
+    })
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -36,11 +38,6 @@ exports.getEditProduct = (req, res, next) => {
 }
 
 exports.postEditProduct = (req, res, next) => {
-  // const prodId = req.body.productId
-  // const updatedTitle = req.body.title
-  // const updatedImage = req.body.imageUrl
-  // const updatedPrice = req.body.price
-  // const updatedDesc = req.body.description
   const obj = {
     id: req.body.productId,
     title: req.body.title,

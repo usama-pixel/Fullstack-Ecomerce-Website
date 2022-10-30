@@ -15,41 +15,46 @@ exports.getProducts = (req, res, next) => {
     res.sendFile(path.join(rootDir, 'views', 'shop.html')); // '../' means go up one level, we can also use '..'
    // instead of '../'
   */
-  Product.fetchAll((products) => {
-    res.render('shop/product-list', {
-      prods: products,
-      pageTitle: 'All Products',
-      path: '/products',
-      // the handlebars will automatically use the default layout, you can disable it using a special key here-
-      // layout: false,-
-      // like the above line.
-    }) // products will be available in shop.pug file through its key 'prods',
-    // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
-    // adminData.products.forEach(itm => console.log(itm.title))
-  })
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render('shop/product-list', {
+        prods: rows,
+        pageTitle: 'All Products',
+        path: '/products',
+        // the handlebars will automatically use the default layout, you can disable it using a special key here-
+        // layout: false,-
+        // like the above line.
+      }) // products will be available in shop.pug file through its key 'prods',
+      // you can also pass multiple fields here like {prods: products, docTitle: 'shop' }
+    })
+    .catch(err => console.log(err))
 }
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId // we used productId here because we used it in our route like
   // /product/:productId
-  Product.findById(prodId, product => {
-    console.log(product)
-    res.render('shop/product-detail', {
-      product,
-      pageTitle: product.title,
-      path: '/products'
+  Product.findById(prodId)
+    .then(([product]) => {
+      res.render('shop/product-detail', {
+        product: product[0],
+        pageTitle: product[0].title,
+        path: '/products'
+      })
     })
-  })
+    .catch(err => console.log(err))
 }
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll((products) => {
-    res.render('shop/index', {
-      prods: products,
-      pageTitle: 'Shop',
-      path: '/',
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render('shop/index', {
+        prods: rows,
+        pageTitle: 'Shop',
+        path: '/',
+      })
     })
-  })
+    .catch(err => console.log(err))
+
 }
 
 exports.getCart = (req, res, next) => {

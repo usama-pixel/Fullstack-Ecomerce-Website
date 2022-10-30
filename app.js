@@ -2,6 +2,9 @@ const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 // const expressHbs = require('express-handlebars')
+const errorController = require('./controllers/error')
+
+const db = require('./util/database')
 
 const app = express();
 /*
@@ -41,7 +44,6 @@ app.use(shopRoutes)
 app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
 // app.use(express.static(path.join(__dirname, 'folder')))
 
-const errorController = require('./controllers/error')
 app.use(errorController.get404)
 
 
