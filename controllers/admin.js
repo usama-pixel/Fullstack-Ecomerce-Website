@@ -12,13 +12,14 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   // const { title, imageUrl, price, description } = req.body /**this line is used in the video */
   // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
-  const product = { ...req.body }
-  Product.create(product)
+  req.user.createProduct(req.body)
     .then(result => {
       console.log(result)
       res.redirect('/admin/products')
     })
     .catch(err => console.log(err))
+  // Product.create(product)
+
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -26,9 +27,11 @@ exports.getEditProduct = (req, res, next) => {
   // 'https://www.usama.com/products/1?edit=true' here everything after ? are the query parameters
   if (!editMode)
     return res.redirect('/')
-
-  Product.findByPk(req.params.productId)
-    .then(product => {
+  const prodId = req.params.productId
+  req.user
+    .getProducts({ where: { id: prodId } })
+    .then(products => {
+      const product = products[0]
       if (!product)
         return res.redirect('/')
       res.render('admin/edit-product', {
@@ -72,7 +75,7 @@ exports.deleteProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  req.user.getProducts()
     .then(products => {
       res.render('admin/products', {
         prods: products,

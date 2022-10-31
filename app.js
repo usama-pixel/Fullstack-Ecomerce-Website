@@ -6,6 +6,9 @@ const errorController = require('./controllers/error')
 
 const sequelize = require('./util/database')
 
+const Product = require('./models/product')
+const User = require('./models/user')
+
 const app = express();
 /*
 // by default 'layoutsDir' is set to 'views/layout', so setting it to it again is redundant.
@@ -37,19 +40,52 @@ const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
+// app.use(express.static(path.join(__dirname, 'folder')))
+app.use((req, res, next) => {
+    User.findByPk(1)
+        .then(user => {
+            req.user = user
+            console.log('user added', req.user.name)
+            next()
+        })
+        .catch(err => console.log(err))
+})
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 
-app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
-// app.use(express.static(path.join(__dirname, 'folder')))
-
 app.use(errorController.get404)
+
+
+Product.belongsTo(User, { // this defines the relation that a user created this product
+    constraints: true,
+    onDelete: 'CASCADE' // CASCADE tells that if a user is deleted, the connected product should also be deleted
+})
+// instead of above line, we can also define that relation with the following line
+User.hasMany(Product)
+/** this above line says that a user can have many products, which basically says
+the same thing as Product.belongsTo(User) */
+
+
 
 // sync() method looks at all the models defined, which we created using sequelize.define
 // in our product.js file in the model folder, and creates tables for them
+// sync() also defines relations in our DB, but the problem is if we already have created tables in
+// the DB, it will not define the relations in DB that we defined here such as Product.belongsTo(User)
+// so we pass { force: true } to forcefully define our relations even after tables are created.
 sequelize.sync()
     .then(result => {
+        return User.findByPk(1)
+    })
+    .then(user => {
+        if (!user) {
+            return User.create({ name: 'Max', email: 'test@gmail.com' })
+        }
+        return user
+    })
+    .then(user => {
+        console.log(user)
         app.listen(3001, () => {
             console.log('listening to port 3001')
         })
