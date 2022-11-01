@@ -14,12 +14,10 @@ exports.postAddProduct = (req, res, next) => {
   // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
   req.user.createProduct(req.body)
     .then(result => {
-      console.log(result)
+      console.log('result', result)
       res.redirect('/admin/products')
     })
     .catch(err => console.log(err))
-  // Product.create(product)
-
 }
 
 exports.getEditProduct = (req, res, next) => {

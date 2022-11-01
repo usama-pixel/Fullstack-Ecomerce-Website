@@ -8,7 +8,8 @@ const sequelize = require('./util/database')
 
 const Product = require('./models/product')
 const User = require('./models/user')
-
+const Cart = require('./models/cart')
+const CartItem = require('./models/cart-item')
 const app = express();
 /*
 // by default 'layoutsDir' is set to 'views/layout', so setting it to it again is redundant.
@@ -46,11 +47,14 @@ app.use((req, res, next) => {
     User.findByPk(1)
         .then(user => {
             req.user = user
-            console.log('user added', req.user.name)
+            // console.log('user added', req.user.name)
             next()
         })
         .catch(err => console.log(err))
 })
+User.hasOne(Cart)
+Cart.belongsToMany(Product, { through: CartItem })
+Product.belongsToMany(Cart, { through: CartItem })
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
@@ -67,6 +71,8 @@ User.hasMany(Product)
 /** this above line says that a user can have many products, which basically says
 the same thing as Product.belongsTo(User) */
 
+
+// Cart.hasMany(CartItem)
 
 
 // sync() method looks at all the models defined, which we created using sequelize.define
@@ -85,7 +91,9 @@ sequelize.sync()
         return user
     })
     .then(user => {
-        console.log(user)
+        return user.createCart()
+    })
+    .then(cart => {
         app.listen(3001, () => {
             console.log('listening to port 3001')
         })
