@@ -12,7 +12,7 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   // const { title, imageUrl, price, description } = req.body /**this line is used in the video */
   // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
-  const product = new Product({ ...req.body, userId: req.user._id })
+  const product = new Product(req.body)
   product.save()
     .then(result => {
       console.log('result', result)
@@ -42,18 +42,21 @@ exports.getEditProduct = (req, res, next) => {
 }
 
 exports.postEditProduct = (req, res, next) => {
-  const obj = {
-    _id: req.body.productId,
-    title: req.body.title,
-    price: req.body.price,
-    imageUrl: req.body.imageUrl,
-    description: req.body.description,
-  }
-  const product = new Product(obj)
-  product.save()
+  // const obj = {
+  //   _id: req.body.productId,
+  //   title: req.body.title,
+  //   price: req.body.price,
+  //   imageUrl: req.body.imageUrl,
+  //   description: req.body.description,
+  // }
+  Product.findById(req.body.productId)
+    .then(product => {
+      Object.assign(product, req.body)
+      // product = { ...product, ...req.body }
+      return product.save()
+    })
     .then(result => {
       console.log('Updated')
-      console.log(result)
       res.redirect('/admin/products')
     })
     .catch(err => console.log(err))
@@ -69,7 +72,7 @@ exports.deleteProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then(products => {
       res.render('admin/products', {
         prods: products,
