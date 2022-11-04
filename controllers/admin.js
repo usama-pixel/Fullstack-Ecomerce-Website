@@ -12,7 +12,8 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   // const { title, imageUrl, price, description } = req.body /**this line is used in the video */
   // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
-  const product = new Product(req.body)
+  const product = new Product({ ...req.body, userId: req.user._id }) // conveniently, we can also set userId
+  // to simply req.user which is a mongoose object, and mongoose will automatically pick the _id from it.
   product.save()
     .then(result => {
       console.log('result', result)
@@ -64,7 +65,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.body.productId
-  Product.deleteById(prodId)
+  Product.findByIdAndDelete(prodId)
     .then(() => {
       res.redirect('/admin/products')
     }).catch(err => console.log(err))
@@ -73,6 +74,14 @@ exports.deleteProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    /** .select('title price -_id') // this method allows use to select specific properties from retrieved data to show, and if you dont want a 
+     * certain field you just put the minus sign infront of it like we did here
+     */
+    /** .populate('userId') // this method allows us to retrieve data for a property from the document where is is defined into the current document
+     * like here in product document we have reference property of 'userId' from 'User' document, and to get the data of that user we would have
+     * to run a different query and match the current id to all the users. But through populate, we don't have to do that, we just pass it the
+     * property name and it finds for us and gives it to us.
+     */
     .then(products => {
       res.render('admin/products', {
         prods: products,

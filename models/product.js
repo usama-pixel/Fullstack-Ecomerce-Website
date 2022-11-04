@@ -18,6 +18,11 @@ const productSchema = new Schema({
   imageUrl: {
     type: String,
     required: true
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User' // we use this field to help us distinguish b/w to which document this id belong
+    // because as it happens, this userId field could hold I of any document
   }
 })
 module.exports = mongoose.model('Product', productSchema)

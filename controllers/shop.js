@@ -1,5 +1,5 @@
 const Product = require('../models/product')
-
+const Order = require('../models/order')
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
@@ -40,12 +40,16 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
-  req.user.getCart()
-    .then(products => {
+  req.user
+    .populate('cart.items.productId')
+    // .execPopulate()
+    .then(({ cart: { items } }) => {
+      console.log(items)
+      // res.redirect('/')
       res.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products: products
+        products: items
       })
     })
     .catch(err => console.log(err))
@@ -65,33 +69,50 @@ exports.postCart = (req, res, next) => {
 }
 
 exports.postCartDeleteProduct = (req, res, next) => {
+  console.log('api hit')
   const prodId = req.body.productId;
-  req.user.deleteItemFromCart(prodId)
+  req.user.removeFromCart(prodId)
     .then(result => {
       res.redirect('/cart')
     })
     .catch(err => console.log(err))
-
-  // console.log(prodId)
-  // console.log('hit')
-}
-
-exports.getCheckout = (req, res, next) => {
-  res.render('shop/checkout', {
-    path: '/checkout',
-    pageTitle: 'Checkout'
-  })
 }
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
-  req.user.addOrder()
-    .then(result => res.redirect('/orders'))
+  console.log('api hit')
+  req.user
+    .populate('cart.items.productId')
+    // .execPopulate()
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return { quantity: i.quantity, product: { ...i.productId._doc } } // if we simply 
+        // assign i.productId to product, then only the _id will be assigned, not the whole data
+        // because it contains alot of metadata that we can see from console.log. But the '_doc' 
+        // gives us just the data that we want(no metadat), so now it works
+      })
+      console.log('products', products)
+      const order = new Order({
+        user: {
+          name: req.user.name,
+          userId: req.user._id
+        },
+        products: products
+      })
+      return order.save()
+    })
+    .then(result => {
+      return req.user.clearCart()
+    })
+    .then(() => {
+      res.redirect('/orders')
+    })
     .catch(err => console.log(err))
 }
 
 exports.getOrders = (req, res, next) => {
-  req.user.getOrders()
+  req.user.orders
+    .populate('items.productId')
+    // .execPopulate()
     .then(orders => {
       res.render('shop/orders', {
         path: '/orders',

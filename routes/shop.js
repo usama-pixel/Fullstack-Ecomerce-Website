@@ -16,13 +16,13 @@ router.get('/products/:productId', shopController.getProduct) // here :productId
 // but if you have a route like '/products/delete after this route, then that will never execute
 // so always place these(/product/:productId) kinds of routes after the general routes(/product/delete)
 
-// router.get('/cart', shopController.getCart)
+router.get('/cart', shopController.getCart)
 
-// router.post('/cart', shopController.postCart)
+router.post('/cart', shopController.postCart)
 
-// router.post('/cart-delete-item', shopController.postCartDeleteProduct)
+router.post('/cart-delete-item', shopController.postCartDeleteProduct)
 
-// router.post('/create-order', shopController.postOrder)
+router.post('/create-order', shopController.postOrder)
 
 // router.get('/orders', shopController.getOrders)
 
