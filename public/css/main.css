@@ -42,8 +42,10 @@ form {
 
 .main-header__nav {
   height: 100%;
-  display: none;
+  width: 100%;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .main-header__item-list {
@@ -218,24 +220,4 @@ form {
   #side-menu-toggle {
     display: none;
   }
-}
-
-.cart__item-list {
-  list-style: none;
-  margin: auto;
-  width: 30%;
-  /* border: #00695c solid; */
-  box-shadow: 2px 2px 2px 2px;
-}
-
-.cart__item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-.cart__item h1,
-.cart__item h2,
-.cart__item form {
-  padding: 5px;
-  
 }

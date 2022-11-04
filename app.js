@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const session = require('express-session')
 
 const errorController = require('./controllers/error')
 const User = require('./models/user')
@@ -13,11 +14,13 @@ app.set('views', 'views')
 
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
-
+const authRoutes = require('./routes/auth')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, 'public')))
-
+app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false })) // resave: false means that session will
+// not be saved on every request that is made by the client, but only when something changes in the session
+// saveUninitialize ensures that session is not saved on requests where nothing is changed
 app.use((req, res, next) => {
     User.findById('6363f4efd2c4c6e0bf248de7')
         .then(user => {
@@ -29,6 +32,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
+app.use(authRoutes)
 
 app.use(errorController.get404)
 
