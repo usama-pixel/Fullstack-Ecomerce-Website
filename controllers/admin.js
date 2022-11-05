@@ -6,14 +6,15 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
-    isAuthenticated: req.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn
   })
 }
 
 exports.postAddProduct = (req, res, next) => {
-  // const { title, imageUrl, price, description } = req.body /**this line is used in the video */
-  // const product = new Product(title, imageUrl, price, description) /**this line is used in video */
-  const product = new Product({ ...req.body, userId: req.user._id }) // conveniently, we can also set userId
+  const product = new Product({
+    ...req.body,
+    userId: req.user._id
+  }) // conveniently, we can also set userId
   // to simply req.user which is a mongoose object, and mongoose will automatically pick the _id from it.
   product.save()
     .then(result => {
@@ -38,20 +39,13 @@ exports.getEditProduct = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => console.log(err))
 }
 
 exports.postEditProduct = (req, res, next) => {
-  // const obj = {
-  //   _id: req.body.productId,
-  //   title: req.body.title,
-  //   price: req.body.price,
-  //   imageUrl: req.body.imageUrl,
-  //   description: req.body.description,
-  // }
   Product.findById(req.body.productId)
     .then(product => {
       Object.assign(product, req.body)
@@ -89,7 +83,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'Admin Products',
         path: '/admin/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => console.log(err))
