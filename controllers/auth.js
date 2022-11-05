@@ -1,20 +1,37 @@
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const nodemailer = require('nodemailer')
+const sendgridTransport = require('nodemailer-sendgrid-transport')
+
+const email = process.env.email
+const pass = process.env.password
+console.log('env', email)
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  auth: {
+    user: email,
+    pass: pass
+  }
+})
 
 exports.getLogin = (req, res, next) => {
-  console.log(req.session.isLoggedIn)
+  let message = req.flash('error')
+  message = message.length > 0 ? message[0] : null
   res.render('auth/login', {
     path: '/login',
     pageTitle: 'Login',
-    isAuthenticated: false
+    errorMessage: message
   })
 }
 
 exports.getSignup = (req, res, next) => {
+  let message = req.flash('error')
+  message = message.length > 0 ? message[0] : null
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    isAuthenticated: false
+    errorMessage: message
   })
 }
 
@@ -24,6 +41,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
+        req.flash('error', 'Invalid email or password')
         return res.redirect('/login')
       }
       bcrypt.compare(password, user.password)
@@ -39,6 +57,7 @@ exports.postLogin = (req, res, next) => {
               res.redirect('/')
             })
           }
+          req.flash('error', 'Invalid email or password')
           return res.redirect('/login')
         })
         .catch(err => {
@@ -53,6 +72,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email })
     .then(userDoc => {
       if (userDoc) {
+        req.flash('error', 'This email already exists')
         return res.redirect('/signup')
       }
       return bcrypt.hash(password, 12)
@@ -66,7 +86,15 @@ exports.postSignup = (req, res, next) => {
         })
         .then(result => {
           res.redirect('/login')
+          return transporter.sendMail({
+            from: '"Usama" shop@node-complete.com>', // sender address
+            to: email, // list of receivers
+            subject: "Yo qurari Signup succeeded ✔", // Subject line
+            text: "There is a new article. It's about sending emails, check it out!", // plain text body
+            html: "<h1>You Successfully signedup</h1>", // html body
+          })
         })
+        .catch(err => console.log(err))
     })
     .catch(err => console.log(err))
 }
