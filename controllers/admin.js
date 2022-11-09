@@ -95,10 +95,8 @@ exports.postEditProduct = (req, res, next) => {
       product: { ...req.body, _id: prodId }
     })
   }
-  console.log('outside')
   Product.findById(req.body.productId)
     .then(product => {
-      console.log('mongo product', product)
       if (product.userId.toString() !== req.user._id.toString())
         return res.redirect('/')
 
@@ -109,7 +107,11 @@ exports.postEditProduct = (req, res, next) => {
           res.redirect('/admin/products')
         })
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.deleteProduct = (req, res, next) => {
@@ -118,8 +120,11 @@ exports.deleteProduct = (req, res, next) => {
   Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then(() => {
       res.redirect('/admin/products')
-    }).catch(err => console.log(err))
-  // Product.delete(req.body.productId)
+    }).catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.getProducts = (req, res, next) => {
@@ -139,5 +144,9 @@ exports.getProducts = (req, res, next) => {
         path: '/admin/products',
       })
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
