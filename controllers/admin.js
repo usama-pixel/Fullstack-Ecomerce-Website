@@ -35,7 +35,21 @@ exports.postAddProduct = (req, res, next) => {
     .then(result => {
       res.redirect('/admin/products')
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      // return res.status(422).render('admin/edit-product', {
+      //   pageTitle: 'Add Product',
+      //   path: '/admin/add-product',
+      //   editing: false,
+      //   hasError: true,
+      //   validationErrors: [],
+      //   errorMessage: 'Database operation failed, please try again',
+      //   product: { ...req.body }
+      // })
+      // res.redirect('/500')
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -58,7 +72,11 @@ exports.getEditProduct = (req, res, next) => {
         product,
       })
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.postEditProduct = (req, res, next) => {
