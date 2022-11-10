@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb')
 const { validationResult } = require('express-validator')
 const Product = require('../models/product')
+const fileHelper = require('../util/file')
 
 exports.getAddProduct = (req, res, next) => {
   console.log('session data', req.session.user)
@@ -112,6 +113,7 @@ exports.postEditProduct = (req, res, next) => {
 
       Object.assign(product, req.body)
       if (image) {
+        fileHelper.deleteFile(product.imageUrl)
         product.imageUrl = image.path
       }
       return product.save()
@@ -129,8 +131,14 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.body.productId
-
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error('Product not found'))
+      }
+      fileHelper.deleteFile(product.imageUrl)
+      return Product.deleteOne({ _id: prodId, userId: req.user._id })
+    })
     .then(() => {
       res.redirect('/admin/products')
     }).catch(err => {
