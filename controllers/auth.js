@@ -52,7 +52,7 @@ exports.postLogin = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
   const errors = validationResult(req)
-  console.log(errors.array())
+
   if (!errors.isEmpty()) {
     return res.status(422).render('auth/login', {
       path: '/login',
@@ -76,9 +76,9 @@ exports.postLogin = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then(doMatch => {
           if (doMatch) {
-            console.log('domatch', doMatch)
             req.session.isLoggedIn = true
             req.session.user = user
+            console.log('user saved in session', req.session.user)
             return req.session.save((err) => {
               // we are writing res.redirect inside this function because if we redirect it outside it, it may happend that the data may take a little time
               // to be saved into the database, which may cause some bugs. but save ensures that the data is written to the database, and then this callback runs

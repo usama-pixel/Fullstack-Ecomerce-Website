@@ -22,7 +22,6 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    body('imageUrl', 'Image URL must be provided').isURL(),
     body('price')
       .isFloat({ min: 0.0001 })
       .withMessage('Your price must be greater than 0'),
@@ -43,7 +42,6 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    body('imageUrl', 'Image URL must be provided').isURL(),
     body('price')
       .isFloat({ min: 0.0001 })
       .withMessage('Your price must be greater than 0'),
