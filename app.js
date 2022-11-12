@@ -74,7 +74,6 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
-    console.log('yoooo')
     if (!req.session.user) {
         return next()
     }

@@ -78,7 +78,7 @@ exports.postLogin = (req, res, next) => {
           if (doMatch) {
             req.session.isLoggedIn = true
             req.session.user = user
-            console.log('user saved in session', req.session.user)
+            // console.log('user saved in session', req.session.user)
             return req.session.save((err) => {
               // we are writing res.redirect inside this function because if we redirect it outside it, it may happend that the data may take a little time
               // to be saved into the database, which may cause some bugs. but save ensures that the data is written to the database, and then this callback runs
@@ -109,7 +109,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const { email, password, confirmPassword } = req.body
   const errors = validationResult(req)
-  console.log('errors', errors.array())
+  // console.log('errors', errors.array())
   if (!errors.isEmpty()) {
     return res
       .status(422)
@@ -168,7 +168,7 @@ exports.postReset = (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       console.log(err)
-      console.log('res 1')
+      // console.log('res 1')
       return res.redirect('/reset')
     }
     const token = buffer.toString('hex')
@@ -176,7 +176,7 @@ exports.postReset = (req, res, next) => {
       .then(user => {
         if (!user) {
           req.flash('error', 'No account with that email found')
-          console.log('res 2')
+          // console.log('res 2')
           return res.redirect('/reset')
         }
         user.resetToken = token
@@ -204,7 +204,7 @@ exports.postReset = (req, res, next) => {
 }
 
 exports.getNewPassword = (req, res, next) => {
-  console.log('api hit')
+  // console.log('api hit')
   const token = req.params.token
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then(user => {
