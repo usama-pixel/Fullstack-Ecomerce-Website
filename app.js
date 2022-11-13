@@ -18,7 +18,6 @@ const PORT = process.env.PORT || 3001
 // const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
 const MONGODB_URI = process.env.DATABASE_URI
 
-
 const app = express();
 
 const store = new MongoDBStore({
