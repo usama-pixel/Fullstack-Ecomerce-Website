@@ -12,10 +12,12 @@ const multer = require('multer')
 const errorController = require('./controllers/error')
 const User = require('./models/user')
 
+dotenv.config()
+
 const PORT = process.env.PORT || 3001
 // const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
-const MONGODB_URI = 'mongodb+srv://Usama:MyCluster@cluster0.ydhxnt0.mongodb.net/shop?retryWrites=true&w=majority'
-
+const MONGODB_URI = process.env.DATABASE_URI
+console.log(MONGODB_URI)
 const app = express();
 
 const store = new MongoDBStore({
@@ -45,7 +47,7 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-dotenv.config()
+
 app.set('view engine', 'ejs')
 app.set('views', 'views')
 
