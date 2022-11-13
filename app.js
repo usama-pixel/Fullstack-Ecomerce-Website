@@ -12,7 +12,9 @@ const multer = require('multer')
 const errorController = require('./controllers/error')
 const User = require('./models/user')
 
-const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
+const PORT = process.env.PORT || 3001
+// const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
+const MONGODB_URI = 'mongodb+srv://Usama:MyCluster@cluster0.ydhxnt0.mongodb.net/shop?retryWrites=true&w=majority'
 
 const app = express();
 
@@ -107,8 +109,8 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(MONGODB_URI)
     .then(result => {
-        app.listen(3001, () => {
-            console.log('listening on 3001')
+        app.listen(PORT, () => {
+            console.log(`listening on ${PORT}`)
         })
     })
     .catch(err => console.log(err))
