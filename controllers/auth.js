@@ -135,9 +135,9 @@ exports.postSignup = (req, res, next) => {
       return transporter.sendMail({
         from: '"Usama" shop@node-complete.com>', // sender address
         to: email, // list of receivers
-        subject: "Yo qurari Signup succeeded ✔", // Subject line
-        text: "There is a new article. It's about sending emails, check it out!", // plain text body
-        html: "<h1>You Successfully signedup</h1>", // html body
+        subject: "Signup succeeded ✔", // Subject line
+        text: "Your Account was created on Usama's Ecomerce site!", // plain text body
+        html: "<h1>You Successfully signed up</h1>", // html body
       })
     })
     .catch(err => {
