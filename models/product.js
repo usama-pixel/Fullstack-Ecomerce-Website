@@ -1,67 +1,84 @@
-const fs = require('fs')
-const path = require('path')
+const mongoose = require('mongoose')
 
-const Cart = require('./cart')
+const Schema = mongoose.Schema
 
-const p = path.join(
-  path.dirname(require.main.filename),
-  'data',
-  'products.json'
-)
+const productSchema = new Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  imageUrl: {
+    type: String,
+    required: true
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User' // we use this field to help us distinguish b/w to which document this id belong
+    // because as it happens, this userId field could hold I of any document
+  }
+})
+module.exports = mongoose.model('Product', productSchema)
 
-const getProductsFromFile = (cb) => {
-  fs.readFile(p, (err, fileContent) => {
-    if (err) {
-      return cb([])
-    }
-    // console.log('fileContent')
-    // console.log(fileContent)
-    // console.log('fileContent end')
-    cb(JSON.parse(fileContent))
-  })
-}
-module.exports = class product {
-  constructor(book) {
-    Object.assign(this, book)
-  }
-  save() {
-    getProductsFromFile(products => {
-      if (this.id) {
-        const existingProductIndex = products.findIndex(product => product.id === this.id)
-        const updatedProducts = [...products]
-        updatedProducts[existingProductIndex] = this
-        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
-          console.log(err)
-        })
-      } else {
-        this.id = Math.random().toString();
-        products.push(this)
-        fs.writeFile(p, JSON.stringify(products), (err) => {
-          console.log(err)
-        })
-      }
-    })
-  }
-  static delete(id) {
-    getProductsFromFile(products => {
-      const product = products.find(prod => prod.id === id)
-      const newProducts = products.filter(prod => prod.id !== id)
-      fs.writeFile(p, JSON.stringify(newProducts), (err) => {
-        if (!err) {
-          Cart.deleteProduct(id, product.price)
-        }
-        console.log(err)
-      })
-    })
-  }
-  static fetchAll(cb) { // static key word here allows us to access this method without creating an object-
-    // of the class like 'const p = new Product()', rather, we can access it like Product.fetchAll() 
-    getProductsFromFile(cb)
-  }
-  static findById(id, cb) {
-    getProductsFromFile(products => {
-      const product = products.find(p => p.id === id)
-      cb(product)
-    })
-  }
-}
+// const { ObjectId } = require('mongodb')
+// const { getDb } = require('../util/database')
+
+// class Product {
+//   constructor(obj) {
+//     Object.assign(this, obj)
+//     this._id = this._id ? new ObjectId(this._id) : this._id
+//   }
+//   save() {
+//     const db = getDb()
+//     let dbOp;
+//     if (this._id) {
+//       dbOp = db
+//         .collection('products')
+//         .updateOne({ _id: this._id }, { $set: this })
+//     } else {
+//       dbOp = db.collection('products').insertOne(this)
+//     }
+//     return dbOp
+//       .then(result => {
+//         console.log(result)
+//       })
+//       .catch(err => console.log(err))
+//   }
+//   static fetchAll() {
+//     const db = getDb()
+//     return db.collection('products')
+//       .find()
+//       .toArray()
+//       .then(products => {
+//         return products
+//       })
+//       .catch(err => console.log(err))
+//   }
+//   static findById(prodId) {
+//     const db = getDb()
+//     return db.collection('products')
+//       .find({ "_id": new ObjectId(prodId) })
+//       .next()
+//       .then(result => result)
+//       .catch(err => console.log(err))
+//   }
+//   static deleteById(prodId) {
+//     const db = getDb()
+//     return db
+//       .collection('products')
+//       .deleteOne({ _id: new ObjectId(prodId) })
+//       .then(result => {
+//         console.log('Deleted')
+//       })
+//       .catch(err => console.log(err))
+//   }
+// }
+
+// module.exports = Product

@@ -1,50 +1,118 @@
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
-// const expressHbs = require('express-handlebars')
+const mongoose = require('mongoose')
+const session = require('express-session')
+const MongoDBStore = require('connect-mongodb-session')(session)
+const csrf = require('csurf')
+const flash = require('connect-flash')
+const dotenv = require('dotenv')
+const multer = require('multer')
+
+const errorController = require('./controllers/error')
+const User = require('./models/user')
+
+dotenv.config()
+
+const PORT = process.env.PORT || 3001
+// const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
+const MONGODB_URI = process.env.DATABASE_URI
 
 const app = express();
-/*
-// by default 'layoutsDir' is set to 'views/layout', so setting it to it again is redundant.
-app.engine(
-    'hbs',
-    expressHbs({
-        layoutsDir: 'views/layouts',
-        defaultLayout: 'main-layout',
-        extname: 'hbs', // this key tells the node js handlebars to look for .hbs extension for the layout-
-        // and this only applies to handlebars layouts, and not anyother handlebars files
-    })
-) // whatever name you set here you will have to give that as extension to view folder files
-// like if name is han, filename would be home.han.
-*/
-// app.set('view engine', 'hbs')
-/**app.set('view engine', 'pug') // app set allows us to set any values(like this app.set('title','Naruto') )
-//globally on our express application express doesnt understand these values and ignores
-// them but we can read these values from app using app.get(), so we can share data across app this way as well.
-// but there are some keywords (view engine, view etc..) that make the express behave differently.
-// view engine tells express that for any dynamic template we are trying to render,
-// use the engine we are registering
-*/
+
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions',
+})
+const csrfProtection = csrf()
+
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().getTime() + '-' + file.originalname)
+    }
+})
+
+const fileFilter = (req, file, cb) => {
+    if (
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg'
+    ) {
+        cb(null, true)
+    } else {
+        return cb(null, false)
+    }
+}
+
+
 app.set('view engine', 'ejs')
-app.set('views', 'views') // using this line will let express find our views which will be rendered using templating engine
-// by default it is set to views folder in the root directory, so there is no need for this line but if the views are in other
-// folder, you can use this line like app.set('views', 'templates')
+app.set('views', 'views')
 
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
+const authRoutes = require('./routes/auth')
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'))
+app.use(express.static(path.join(__dirname, 'public')))
+app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use(
+    session({
+        secret: 'my secret',
+        resave: false,
+        saveUninitialized: false,
+        store: store
+    })) // resave: false means that session will not be saved on every request that is made by the client,
+// but only when something changes in the session saveUninitialize ensures that session is not saved on requests where nothing is changed
+
+app.use(csrfProtection)
+app.use(flash())
+
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn
+    res.locals.csrfToken = req.csrfToken()
+    next()
+})
+
+app.use((req, res, next) => {
+    if (!req.session.user) {
+        return next()
+    }
+    User.findById(req.session.user._id)
+        .then(user => {
+            if (!user) {
+                return next()
+            }
+            req.user = user
+            next()
+        })
+        .catch(err => {
+            next(new Error(err))
+        })
+})
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
+app.use(authRoutes)
+app.get('/500', errorController.get500)
 
-app.use(express.static(path.join(__dirname, 'public'))) // you can register multiple static folders as well like in comment below
-// app.use(express.static(path.join(__dirname, 'folder')))
-
-const errorController = require('./controllers/error')
 app.use(errorController.get404)
 
-
-app.listen(3001, () => {
-    console.log('listening to port 3001')
+app.use((error, req, res, next) => {
+    res.status(500).render('500', {
+        pageTitle: 'Error!',
+        path: '/500',
+        isAuthenticated: req.session.isLoggedIn
+    });
 })
+
+mongoose.connect(MONGODB_URI)
+    .then(result => {
+        app.listen(PORT, () => {
+            console.log(`listening on ${PORT}`)
+        })
+    })
+    .catch(err => console.log(err))
