@@ -1,5 +1,6 @@
-const express = require('express')
 const path = require('path')
+const fs = require('fs')
+const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const session = require('express-session')
@@ -8,6 +9,9 @@ const csrf = require('csurf')
 const flash = require('connect-flash')
 const dotenv = require('dotenv')
 const multer = require('multer')
+const helmet = require('helmet')
+const compression = require('compression')
+const morgan = require('morgan')
 
 const errorController = require('./controllers/error')
 const User = require('./models/user')
@@ -15,7 +19,6 @@ const User = require('./models/user')
 dotenv.config()
 
 const PORT = process.env.PORT || 3001
-// const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop'
 const MONGODB_URI = process.env.DATABASE_URI
 
 const app = express();
@@ -54,6 +57,15 @@ app.set('views', 'views')
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 const authRoutes = require('./routes/auth')
+
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirname, 'access.log'),
+    { flags: 'a' }
+)
+
+app.use(helmet())
+app.use(compression())
+app.use(morgan('combined', { stream: accessLogStream }))
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'))
@@ -108,6 +120,7 @@ app.use((error, req, res, next) => {
         isAuthenticated: req.session.isLoggedIn
     });
 })
+
 
 mongoose.connect(MONGODB_URI)
     .then(result => {

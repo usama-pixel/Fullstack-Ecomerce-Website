@@ -1,7 +1,7 @@
 const fs = require('fs')
 const pdfkitDocument = require('pdfkit')
 const path = require('path')
-const stripe = require('stripe')(process.env.stripe_secret_key)
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 const Product = require('../models/product')
 const Order = require('../models/order')
 const User = require('../models/user')
@@ -21,6 +21,7 @@ exports.getProducts = (req, res, next) => {
         .limit(ITEMS_PER_PAGE)
     })
     .then(products => {
+      console.log(products)
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'Products',

@@ -5,8 +5,8 @@ const nodemailer = require('nodemailer')
 const sendgridTransport = require('nodemailer-sendgrid-transport')
 const { validationResult } = require('express-validator')
 
-const email = process.env.email
-const pass = process.env.password
+const email = process.env.EMAIL
+const pass = process.env.PASSWORD
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
